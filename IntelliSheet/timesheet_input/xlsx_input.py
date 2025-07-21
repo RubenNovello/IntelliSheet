@@ -1,0 +1,1 @@
+## Questo file gestisce l'input dei timesheet in formato .xlsx, esclusivamente per il caricamento dei file CSV/Excel/XLSX/pdf.

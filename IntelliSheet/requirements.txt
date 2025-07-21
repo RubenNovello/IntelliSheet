@@ -1,0 +1,30 @@
+# Core Libraries
+numpy
+pandas
+openpyxl
+scipy
+statsmodels
+
+# Visualization
+matplotlib
+seaborn
+plotly
+streamlit
+altair
+bokeh
+
+# Database
+# sqlite3 is part of the standard library, no need to list it.
+
+# Development
+watchdog
+
+#Optional
+
+scikit-learn
+scipy
+statsmodels
+
+# PDF Export
+fpdf2
+kaleido
