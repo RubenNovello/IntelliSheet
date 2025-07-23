@@ -1,11 +1,63 @@
 # File PRINCIPALE DI IntelliSheet
 import streamlit as st
 import os
+import sys
 from fpdf import FPDF
 import io
-from IntelliSheet.tests.test_kpi import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
-from IntelliSheet.timesheet_dashboard.timesheet_dashboard import support, export
-from IntelliSheet.timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
+
+# Aggiungi il percorso corrente per le importazioni
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+sys.path.insert(0, os.path.join(current_dir, 'IntelliSheet'))
+
+# Usa l'helper robusto per le importazioni KPI
+try:
+    from IntelliSheet.import_helper import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
+except ImportError:
+    # Fallback diretto se l'helper non funziona
+    import importlib.util
+    helper_path = os.path.join(current_dir, 'IntelliSheet', 'import_helper.py')
+    spec = importlib.util.spec_from_file_location("import_helper", helper_path)
+    import_helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(import_helper)
+    run_kpi_analysis = import_helper.run_kpi_analysis
+    grafico_confronto_dipendenti = import_helper.grafico_confronto_dipendenti
+    grafico_dipendenti_per_progetto = import_helper.grafico_dipendenti_per_progetto
+    grafico_progetti_ore_totali = import_helper.grafico_progetti_ore_totali
+    get_complete_data = import_helper.get_complete_data
+
+# Import dei moduli dashboard
+try:
+    from IntelliSheet.timesheet_dashboard.timesheet_dashboard import support, export
+    from IntelliSheet.timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
+except ImportError:
+    try:
+        # Fallback per ambiente locale
+        from timesheet_dashboard.timesheet_dashboard import support, export
+        from timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
+    except ImportError:
+        # Ultimo tentativo con percorso assoluto
+        import importlib.util
+        
+        # Import support
+        support_path = os.path.join(current_dir, 'IntelliSheet', 'timesheet_dashboard', 'timesheet_dashboard', 'support.py')
+        spec = importlib.util.spec_from_file_location("support", support_path)
+        support = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(support)
+        
+        # Import export
+        export_path = os.path.join(current_dir, 'IntelliSheet', 'timesheet_dashboard', 'timesheet_dashboard', 'export.py')
+        spec = importlib.util.spec_from_file_location("export", export_path)
+        export = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(export)
+        
+        # Import docs
+        docs_path = os.path.join(current_dir, 'IntelliSheet', 'timesheet_dashboard', 'timesheet_dashboard', 'docs.py')
+        spec = importlib.util.spec_from_file_location("docs", docs_path)
+        docs = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(docs)
+        show_docs_page = docs.show_docs_page
+
 ### da questo file si lancia l'applicazione Streamlit
 
 # intanto impostiamo il wide mode per l'applicazione

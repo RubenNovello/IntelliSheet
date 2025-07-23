@@ -1,9 +1,29 @@
 # File PRINCIPALE DI IntelliSheet
 import streamlit as st
 import os
+import sys
 from fpdf import FPDF
 import io
-from tests.test_kpi import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
+
+# Usa l'helper robusto per le importazioni
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+try:
+    from import_helper import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
+except ImportError:
+    # Fallback diretto se l'helper non funziona
+    import importlib.util
+    helper_path = os.path.join(current_dir, 'import_helper.py')
+    spec = importlib.util.spec_from_file_location("import_helper", helper_path)
+    import_helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(import_helper)
+    run_kpi_analysis = import_helper.run_kpi_analysis
+    grafico_confronto_dipendenti = import_helper.grafico_confronto_dipendenti
+    grafico_dipendenti_per_progetto = import_helper.grafico_dipendenti_per_progetto
+    grafico_progetti_ore_totali = import_helper.grafico_progetti_ore_totali
+    get_complete_data = import_helper.get_complete_data
+
 from timesheet_dashboard.timesheet_dashboard import support, export
 from timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
 ### da questo file si lancia l'applicazione Streamlit
