@@ -355,7 +355,7 @@ if __name__ == "__main__":
     test_sql.setup_database()
     
     # Directory dove cercare i file
-    salvataggi_dir = r'C:\Users\ruben\Desktop\IntelliSheet\salvataggi'
+    salvataggi_dir = 'salvataggi'
     
     # DEBUG: Controlla cosa c'è nella directory
     print(f"DEBUG: Controllo directory: {salvataggi_dir}")

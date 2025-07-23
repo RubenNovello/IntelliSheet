@@ -3,9 +3,9 @@ import streamlit as st
 import os
 from fpdf import FPDF
 import io
-from tests.test_kpi import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
-from timesheet_dashboard.timesheet_dashboard import support, export
-from timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
+from IntelliSheet.tests.test_kpi import run_kpi_analysis, grafico_confronto_dipendenti, grafico_dipendenti_per_progetto, grafico_progetti_ore_totali, get_complete_data
+from IntelliSheet.timesheet_dashboard.timesheet_dashboard import support, export
+from IntelliSheet.timesheet_dashboard.timesheet_dashboard.docs import show_docs_page
 ### da questo file si lancia l'applicazione Streamlit
 
 # intanto impostiamo il wide mode per l'applicazione
@@ -13,16 +13,24 @@ st.set_page_config(layout="wide")
 
 def initialize_database_if_needed():
     """
-    Inizializza il database se non esiste o è vuoto
+    Inizializza il database se non esiste o è vuoto (solo una volta per sessione)
     """
-    if not os.path.exists('database.db'):
+    # Usa session_state per evitare loop infiniti
+    if 'database_initialized' not in st.session_state:
+        st.session_state.database_initialized = False
+    
+    if st.session_state.database_initialized:
+        return
+    
+    if not os.path.exists('IntelliSheet/database.db'):
         st.info("🔄 Inizializzazione database in corso...")
         # Esegui il processing automaticamente
         import subprocess
-        result = subprocess.run(['python', 'tests/test_sql.py'],
+        result = subprocess.run(['python', 'IntelliSheet/tests/test_sql.py'],
                               capture_output=True, text=True, cwd='.')
         if result.returncode == 0:
             st.success("✅ Database inizializzato con successo!")
+            st.session_state.database_initialized = True
             st.rerun()
         else:
             st.error("❌ Errore nell'inizializzazione del database")
@@ -34,22 +42,26 @@ def initialize_database_if_needed():
             if df.empty:
                 st.info("🔄 Database vuoto, inizializzazione in corso...")
                 import subprocess
-                result = subprocess.run(['python', 'tests/test_sql.py'],
+                result = subprocess.run(['python', 'IntelliSheet/tests/test_sql.py'],
                                       capture_output=True, text=True, cwd='.')
                 if result.returncode == 0:
                     st.success("✅ Database popolato con successo!")
+                    st.session_state.database_initialized = True
                     st.rerun()
                 else:
                     st.error("❌ Errore nel popolamento del database")
                     st.code(result.stderr)
+            else:
+                st.session_state.database_initialized = True
         except:
             # Se c'è un errore nella lettura, ricrea il database
             st.info("🔄 Ricostruzione database in corso...")
             import subprocess
-            result = subprocess.run(['python', 'tests/test_sql.py'],
+            result = subprocess.run(['python', 'IntelliSheet/tests/test_sql.py'],
                                   capture_output=True, text=True, cwd='.')
             if result.returncode == 0:
                 st.success("✅ Database ricostruito con successo!")
+                st.session_state.database_initialized = True
                 st.rerun()
 
 # Inizializza il database se necessario
@@ -139,7 +151,7 @@ def data_processing_page():
     st.write("Gestione e processing dei file Excel")
     
     # Mostra file disponibili
-    salvataggi_dir = 'salvataggi'
+    salvataggi_dir = 'IntelliSheet/salvataggi'
     if os.path.exists(salvataggi_dir):
         excel_files = [f for f in os.listdir(salvataggi_dir) if f.endswith(('.xlsx', '.xls'))]
         
@@ -153,7 +165,7 @@ def data_processing_page():
                 with st.spinner("Processing in corso..."):
                     # Esegui il processing
                     import subprocess
-                    result = subprocess.run(['python', 'tests/test_sql.py'], 
+                    result = subprocess.run(['python', 'IntelliSheet/tests/test_sql.py'],
                                           capture_output=True, text=True, cwd='.')
                     
                     if result.returncode == 0:
@@ -210,13 +222,13 @@ pages = {
 
 # Sidebar
 # Costruisci il percorso corretto per il logo
-logo_path = os.path.join(os.path.dirname(__file__), "logo.jpg")
+logo_path = os.path.join("IntelliSheet", "logo.jpg")
 if os.path.exists(logo_path):
     st.sidebar.image(logo_path, width=200)
 else:
     # Fallback: cerca il logo nella directory corrente
-    if os.path.exists("logo.jpg"):
-        st.sidebar.image("logo.jpg", width=200)
+    if os.path.exists("IntelliSheet/logo.jpg"):
+        st.sidebar.image("IntelliSheet/logo.jpg", width=200)
     else:
         st.sidebar.write("🧠 IntelliSheet")  # Fallback senza logo
 st.sidebar.title("🧠 IntelliSheet")
@@ -231,7 +243,7 @@ uploaded_file = st.sidebar.file_uploader(
 
 if uploaded_file is not None:
     # Crea la directory 'salvataggi' se non esiste
-    save_path = "salvataggi"
+    save_path = "IntelliSheet/salvataggi"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -247,7 +259,7 @@ if uploaded_file is not None:
 if st.sidebar.button("🔄 Process Data", help="Processa tutti i file Excel in salvataggi/"):
     with st.spinner("Processing..."):
         import subprocess
-        result = subprocess.run(['python', 'tests/test_sql.py'], 
+        result = subprocess.run(['python', 'IntelliSheet/tests/test_sql.py'],
                               capture_output=True, text=True, cwd='.')
         
         if result.returncode == 0:
@@ -300,14 +312,14 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### 📊 Stato Sistema")
 
 # Mostra stato del sistema
-if os.path.exists('database.db'):
+if os.path.exists('IntelliSheet/database.db'):
     st.sidebar.success("✅ Database OK")
 else:
     st.sidebar.warning("⚠️ Database mancante")
 
 salvataggi_count = 0
-if os.path.exists('salvataggi'):
-    salvataggi_count = len([f for f in os.listdir('salvataggi') if f.endswith(('.xlsx', '.xls'))])
+if os.path.exists('IntelliSheet/salvataggi'):
+    salvataggi_count = len([f for f in os.listdir('IntelliSheet/salvataggi') if f.endswith(('.xlsx', '.xls'))])
 
 st.sidebar.info(f"📁 File Excel: {salvataggi_count}")
 

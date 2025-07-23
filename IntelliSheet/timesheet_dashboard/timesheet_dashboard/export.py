@@ -2,7 +2,7 @@ import pandas as pd
 from fpdf import FPDF
 import tempfile
 import os
-from tests.test_kpi import grafico_confronto_dipendenti, grafico_progetti_ore_totali, get_complete_data
+from IntelliSheet.tests.test_kpi import grafico_confronto_dipendenti, grafico_progetti_ore_totali, get_complete_data
 import plotly.express as px
 
 def grafico_dipendenti_per_progetto_colorato(df):

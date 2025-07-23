@@ -12,7 +12,7 @@ from datetime import datetime
 import sys
 import os
 
-def get_complete_data(db_path='database.db'):
+def get_complete_data(db_path='IntelliSheet/database.db'):
     """
     Estrae tutti i dati necessari dal database con JOIN completo
     """
@@ -159,7 +159,7 @@ def grafico_progetti_ore_totali(df):
     
     return fig
 
-def run_kpi_analysis(db_path='database.db'):
+def run_kpi_analysis(db_path='IntelliSheet/database.db'):
     """
     Esegue l'analisi KPI completa e genera tutti i grafici richiesti
     """
@@ -194,7 +194,7 @@ def verifica_database():
     """
     Funzione integrata per verificare il database
     """
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('IntelliSheet/database.db')
     cursor = conn.cursor()
     
     print("=== VERIFICA DATABASE ===")
@@ -249,7 +249,7 @@ def mostra_riepilogo_kpi():
     print("RIEPILOGO KPI - INTELLISHEET")
     print("=" * 60)
     
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('IntelliSheet/database.db')
     
     # Query completa per ottenere tutti i dati
     query = """
@@ -317,7 +317,7 @@ if __name__ == '__main__':
     print("=== ESECUZIONE TEST KPI ===")
     
     # Verifica se il database esiste
-    if not os.path.exists('database.db'):
+    if not os.path.exists('IntelliSheet/database.db'):
         print("[ERROR] Database non trovato. Esegui prima 'python tests/test_sql.py'")
         exit(1)
     
