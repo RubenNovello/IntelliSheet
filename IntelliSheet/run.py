@@ -165,7 +165,16 @@ pages = {
 }
 
 # Sidebar
-st.sidebar.image("logo.jpg", width=200)
+# Costruisci il percorso corretto per il logo
+logo_path = os.path.join(os.path.dirname(__file__), "logo.jpg")
+if os.path.exists(logo_path):
+    st.sidebar.image(logo_path, width=200)
+else:
+    # Fallback: cerca il logo nella directory corrente
+    if os.path.exists("logo.jpg"):
+        st.sidebar.image("logo.jpg", width=200)
+    else:
+        st.sidebar.write("🧠 IntelliSheet")  # Fallback senza logo
 st.sidebar.title("🧠 IntelliSheet")
 st.sidebar.header("Quick Actions")
 
